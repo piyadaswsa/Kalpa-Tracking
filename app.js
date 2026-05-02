@@ -75,9 +75,16 @@ function renderResults(records) {
       const row = document.createElement("li");
       row.className = "result-item";
 
-      const trackingText = document.createElement("span");
+      const textWrap = document.createElement("div");
+      textWrap.className = "item-text";
+
+      const trackingText = document.createElement("div");
       trackingText.className = "tracking-number";
       trackingText.textContent = record.trackingNumber;
+
+      const timeText = document.createElement("div");
+      timeText.className = "tracking-time";
+      timeText.textContent = `Time: ${formatTimestamp(record.timestamp)}`;
 
       const kexLink = document.createElement("a");
       kexLink.className = "track-btn";
@@ -86,7 +93,9 @@ function renderResults(records) {
       kexLink.rel = "noopener noreferrer";
       kexLink.textContent = "Track on KEX";
 
-      row.appendChild(trackingText);
+      textWrap.appendChild(trackingText);
+      textWrap.appendChild(timeText);
+      row.appendChild(textWrap);
       row.appendChild(kexLink);
       groupList.appendChild(row);
     });
@@ -145,6 +154,15 @@ form.addEventListener("submit", async (event) => {
     }
 
     renderResults(records);
+    const hasTimestamp = records.some((item) => item.timestamp);
+    if (!hasTimestamp) {
+      setStatus(
+        `Found ${records.length} tracking number(s), but no timestamp was returned by API.`,
+        "error"
+      );
+      return;
+    }
+
     setStatus(`Found ${records.length} tracking number(s).`, "success");
   } catch (error) {
     setStatus(`Error: ${error.message}`, "error");

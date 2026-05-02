@@ -202,10 +202,20 @@ button:disabled {
   margin-bottom: 10px;
 }
 
+.item-text {
+  min-width: 0;
+}
+
 .tracking-number {
   font-weight: 700;
   color: #1e293b;
   word-break: break-all;
+}
+
+.tracking-time {
+  margin-top: 2px;
+  font-size: 0.85rem;
+  color: #64748b;
 }
 
 .track-btn {
@@ -236,5 +246,10 @@ button:disabled {
 
   button {
     width: 100%;
+  }
+
+  .result-item {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }
