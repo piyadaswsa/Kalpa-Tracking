@@ -18,27 +18,83 @@ function clearResults() {
   resultSection.classList.add("hidden");
 }
 
-function renderResults(trackingNumbers) {
-  clearResults();
-  trackingNumbers.forEach((trackingNumber) => {
-    const li = document.createElement("li");
-    li.className = "result-item";
+function normalizeRecords(data) {
+  if (Array.isArray(data.trackingItems)) {
+    return data.trackingItems.map((item) => ({
+      trackingNumber: String(item.trackingNumber || "").trim(),
+      timestamp: item.timestamp || "",
+    }));
+  }
 
-    const trackingText = document.createElement("span");
-    trackingText.className = "tracking-number";
-    trackingText.textContent = trackingNumber;
+  if (Array.isArray(data.trackingNumbers)) {
+    return data.trackingNumbers.map((trackingNumber) => ({
+      trackingNumber: String(trackingNumber || "").trim(),
+      timestamp: "",
+    }));
+  }
 
-    const kexLink = document.createElement("a");
-    kexLink.className = "track-btn";
-    kexLink.href = `${KEX_TRACK_BASE_URL}${encodeURIComponent(trackingNumber)}`;
-    kexLink.target = "_blank";
-    kexLink.rel = "noopener noreferrer";
-    kexLink.textContent = "Track on KEX";
+  return [];
+}
 
-    li.appendChild(trackingText);
-    li.appendChild(kexLink);
-    resultList.appendChild(li);
+function formatTimestamp(timestampValue) {
+  if (!timestampValue) return "No timestamp";
+  const date = new Date(timestampValue);
+  if (Number.isNaN(date.getTime())) return String(timestampValue);
+  return date.toLocaleString();
+}
+
+function groupRecordsByTime(records) {
+  const groups = new Map();
+  records.forEach((record) => {
+    const timeLabel = formatTimestamp(record.timestamp);
+    if (!groups.has(timeLabel)) {
+      groups.set(timeLabel, []);
+    }
+    groups.get(timeLabel).push(record);
   });
+  return groups;
+}
+
+function renderResults(records) {
+  clearResults();
+  const grouped = groupRecordsByTime(records);
+
+  grouped.forEach((groupItems, timeLabel) => {
+    const groupLi = document.createElement("li");
+    groupLi.className = "time-group";
+
+    const groupTitle = document.createElement("h3");
+    groupTitle.className = "time-group-title";
+    groupTitle.textContent = timeLabel;
+    groupLi.appendChild(groupTitle);
+
+    const groupList = document.createElement("ul");
+    groupList.className = "group-list";
+
+    groupItems.forEach((record) => {
+      const row = document.createElement("li");
+      row.className = "result-item";
+
+      const trackingText = document.createElement("span");
+      trackingText.className = "tracking-number";
+      trackingText.textContent = record.trackingNumber;
+
+      const kexLink = document.createElement("a");
+      kexLink.className = "track-btn";
+      kexLink.href = `${KEX_TRACK_BASE_URL}${encodeURIComponent(record.trackingNumber)}`;
+      kexLink.target = "_blank";
+      kexLink.rel = "noopener noreferrer";
+      kexLink.textContent = "Track on KEX";
+
+      row.appendChild(trackingText);
+      row.appendChild(kexLink);
+      groupList.appendChild(row);
+    });
+
+    groupLi.appendChild(groupList);
+    resultList.appendChild(groupLi);
+  });
+
   resultSection.classList.remove("hidden");
 }
 
@@ -82,13 +138,14 @@ form.addEventListener("submit", async (event) => {
       throw new Error(data.message || "Unknown error from server.");
     }
 
-    if (!data.trackingNumbers || data.trackingNumbers.length === 0) {
+    const records = normalizeRecords(data).filter((item) => item.trackingNumber);
+    if (records.length === 0) {
       setStatus("No tracking numbers found for this mobile number.", "error");
       return;
     }
 
-    renderResults(data.trackingNumbers);
-    setStatus(`Found ${data.trackingNumbers.length} tracking number(s).`, "success");
+    renderResults(records);
+    setStatus(`Found ${records.length} tracking number(s).`, "success");
   } catch (error) {
     setStatus(`Error: ${error.message}`, "error");
   } finally {
