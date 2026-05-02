@@ -36,36 +36,55 @@ function normalizeRecords(data) {
   return [];
 }
 
-function formatTimestamp(timestampValue) {
-  if (!timestampValue) return "No timestamp";
+function parseTimestamp(timestampValue) {
+  if (!timestampValue) return null;
   const date = new Date(timestampValue);
-  if (Number.isNaN(date.getTime())) return String(timestampValue);
-  return date.toLocaleString();
+  return Number.isNaN(date.getTime()) ? null : date;
 }
 
-function groupRecordsByTime(records) {
+function formatDateLabel(timestampValue) {
+  const date = parseTimestamp(timestampValue);
+  if (!date) return "No date";
+  return date.toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+}
+
+function formatTimeLabel(timestampValue) {
+  const date = parseTimestamp(timestampValue);
+  if (!date) return "No time";
+  return date.toLocaleTimeString(undefined, {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  });
+}
+
+function groupRecordsByDate(records) {
   const groups = new Map();
   records.forEach((record) => {
-    const timeLabel = formatTimestamp(record.timestamp);
-    if (!groups.has(timeLabel)) {
-      groups.set(timeLabel, []);
+    const dateLabel = formatDateLabel(record.timestamp);
+    if (!groups.has(dateLabel)) {
+      groups.set(dateLabel, []);
     }
-    groups.get(timeLabel).push(record);
+    groups.get(dateLabel).push(record);
   });
   return groups;
 }
 
 function renderResults(records) {
   clearResults();
-  const grouped = groupRecordsByTime(records);
+  const grouped = groupRecordsByDate(records);
 
-  grouped.forEach((groupItems, timeLabel) => {
+  grouped.forEach((groupItems, dateLabel) => {
     const groupLi = document.createElement("li");
     groupLi.className = "time-group";
 
     const groupTitle = document.createElement("h3");
     groupTitle.className = "time-group-title";
-    groupTitle.textContent = timeLabel;
+    groupTitle.textContent = dateLabel;
     groupLi.appendChild(groupTitle);
 
     const groupList = document.createElement("ul");
@@ -84,7 +103,7 @@ function renderResults(records) {
 
       const timeText = document.createElement("div");
       timeText.className = "tracking-time";
-      timeText.textContent = `Time: ${formatTimestamp(record.timestamp)}`;
+      timeText.textContent = `Time: ${formatTimeLabel(record.timestamp)}`;
 
       const kexLink = document.createElement("a");
       kexLink.className = "track-btn";
@@ -154,15 +173,6 @@ form.addEventListener("submit", async (event) => {
     }
 
     renderResults(records);
-    const hasTimestamp = records.some((item) => item.timestamp);
-    if (!hasTimestamp) {
-      setStatus(
-        `Found ${records.length} tracking number(s), but no timestamp was returned by API.`,
-        "error"
-      );
-      return;
-    }
-
     setStatus(`Found ${records.length} tracking number(s).`, "success");
   } catch (error) {
     setStatus(`Error: ${error.message}`, "error");
