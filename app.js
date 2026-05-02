@@ -6,6 +6,7 @@ const submitBtn = document.getElementById("submit-btn");
 const statusEl = document.getElementById("status");
 const resultSection = document.getElementById("result-section");
 const resultList = document.getElementById("result-list");
+const KEX_TRACK_BASE_URL = "https://th.kex-express.com/th/track/?track=";
 
 function setStatus(message, type = "") {
   statusEl.textContent = message;
@@ -21,7 +22,21 @@ function renderResults(trackingNumbers) {
   clearResults();
   trackingNumbers.forEach((trackingNumber) => {
     const li = document.createElement("li");
-    li.textContent = trackingNumber;
+    li.className = "result-item";
+
+    const trackingText = document.createElement("span");
+    trackingText.className = "tracking-number";
+    trackingText.textContent = trackingNumber;
+
+    const kexLink = document.createElement("a");
+    kexLink.className = "track-btn";
+    kexLink.href = `${KEX_TRACK_BASE_URL}${encodeURIComponent(trackingNumber)}`;
+    kexLink.target = "_blank";
+    kexLink.rel = "noopener noreferrer";
+    kexLink.textContent = "Track on KEX";
+
+    li.appendChild(trackingText);
+    li.appendChild(kexLink);
     resultList.appendChild(li);
   });
   resultSection.classList.remove("hidden");
