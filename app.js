@@ -42,9 +42,45 @@ function parseTimestamp(timestampValue) {
   return Number.isNaN(date.getTime()) ? null : date;
 }
 
-function formatDateLabel(timestampValue) {
+function getDateGroupKey(timestampValue) {
   const date = parseTimestamp(timestampValue);
-  if (!date) return "No date";
+  if (date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  }
+
+  const text = String(timestampValue || "").trim();
+  if (!text) return "NO_DATE";
+
+  if (text.includes("T")) {
+    return text.split("T")[0];
+  }
+
+  if (text.includes(" ")) {
+    return text.split(" ")[0];
+  }
+
+  return text;
+}
+
+function formatDateLabelFromKey(dateKey) {
+  if (!dateKey || dateKey === "NO_DATE") return "No date";
+  const parsed = new Date(dateKey);
+  if (Number.isNaN(parsed.getTime())) return dateKey;
+  return parsed.toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+}
+
+function formatDateLabel(timestampValue) {
+  const key = getDateGroupKey(timestampValue);
+  if (!key || key === "NO_DATE") return "No date";
+  const date = parseTimestamp(key);
+  if (!date) return key;
   return date.toLocaleDateString(undefined, {
     year: "numeric",
     month: "long",
@@ -65,11 +101,11 @@ function formatTimeLabel(timestampValue) {
 function groupRecordsByDate(records) {
   const groups = new Map();
   records.forEach((record) => {
-    const dateLabel = formatDateLabel(record.timestamp);
-    if (!groups.has(dateLabel)) {
-      groups.set(dateLabel, []);
+    const dateKey = getDateGroupKey(record.timestamp);
+    if (!groups.has(dateKey)) {
+      groups.set(dateKey, []);
     }
-    groups.get(dateLabel).push(record);
+    groups.get(dateKey).push(record);
   });
   return groups;
 }
@@ -78,13 +114,13 @@ function renderResults(records) {
   clearResults();
   const grouped = groupRecordsByDate(records);
 
-  grouped.forEach((groupItems, dateLabel) => {
+  grouped.forEach((groupItems, dateKey) => {
     const groupLi = document.createElement("li");
     groupLi.className = "time-group";
 
     const groupTitle = document.createElement("h3");
     groupTitle.className = "time-group-title";
-    groupTitle.textContent = dateLabel;
+    groupTitle.textContent = formatDateLabelFromKey(dateKey);
     groupLi.appendChild(groupTitle);
 
     const groupList = document.createElement("ul");
