@@ -7,29 +7,49 @@
     <link rel="stylesheet" href="./style.css" />
   </head>
   <body>
+    <div class="bg-decor bg-top"></div>
+    <div class="bg-decor bg-bottom"></div>
+
     <main class="container">
-      <h1>Kerry Tracking Lookup</h1>
-      <p class="subtitle">
-        Enter a mobile number to see all Kerry tracking numbers associated with it.
-      </p>
+      <header class="hero card-glow">
+        <p class="eyebrow">Kerry Delivery Lookup</p>
+        <h1>Track parcels by mobile number</h1>
+        <p class="subtitle">
+          Enter a phone number to show all Kerry tracking numbers from your Google
+          Sheet database.
+        </p>
+      </header>
 
-      <form id="lookup-form" class="card">
-        <label for="mobile-number">Mobile Number</label>
-        <input
-          id="mobile-number"
-          name="mobileNumber"
-          type="tel"
-          placeholder="e.g. 0812345678"
-          autocomplete="tel"
-          required
-        />
-        <button id="submit-btn" type="submit">Search Tracking Numbers</button>
-      </form>
+      <section class="grid">
+        <form id="lookup-form" class="card card-main">
+          <label for="mobile-number">Mobile Number</label>
+          <div class="input-row">
+            <input
+              id="mobile-number"
+              name="mobileNumber"
+              type="tel"
+              placeholder="e.g. 0812345678"
+              autocomplete="tel"
+              required
+            />
+            <button id="submit-btn" type="submit">Search</button>
+          </div>
+          <section id="status" class="status" aria-live="polite"></section>
+        </form>
 
-      <section id="status" class="status" aria-live="polite"></section>
+        <aside class="card card-side">
+          <h2>How to use</h2>
+          <ol>
+            <li>Add data in Google Sheet tab <code>tracking_data</code>.</li>
+            <li>Column A = <code>mobile_number</code>.</li>
+            <li>Column B = <code>tracking_number</code>.</li>
+            <li>Search with the same number format as your sheet.</li>
+          </ol>
+        </aside>
+      </section>
 
       <section id="result-section" class="card hidden">
-        <h2>Results</h2>
+        <h2>Tracking Numbers</h2>
         <ul id="result-list"></ul>
       </section>
     </main>
