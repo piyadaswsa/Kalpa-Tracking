@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kerry Tracking Lookup</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <main class="container">
+      <h1>Kerry Tracking Lookup</h1>
+      <p class="subtitle">
+        Enter a mobile number to see all Kerry tracking numbers associated with it.
+      </p>
+
+      <form id="lookup-form" class="card">
+        <label for="mobile-number">Mobile Number</label>
+        <input
+          id="mobile-number"
+          name="mobileNumber"
+          type="tel"
+          placeholder="e.g. 0812345678"
+          autocomplete="tel"
+          required
+        />
+        <button id="submit-btn" type="submit">Search Tracking Numbers</button>
+      </form>
+
+      <section id="status" class="status" aria-live="polite"></section>
+
+      <section id="result-section" class="card hidden">
+        <h2>Results</h2>
+        <ul id="result-list"></ul>
+      </section>
+    </main>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
