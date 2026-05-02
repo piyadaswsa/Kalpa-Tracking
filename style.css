@@ -212,10 +212,8 @@ button:disabled {
   word-break: break-all;
 }
 
-.tracking-time {
-  margin-top: 2px;
-  font-size: 0.85rem;
-  color: #64748b;
+.time-group .tracking-time {
+  display: none !important;
 }
 
 .track-btn {
