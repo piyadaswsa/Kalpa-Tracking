@@ -88,16 +88,6 @@ function formatDateLabel(timestampValue) {
   });
 }
 
-function formatTimeLabel(timestampValue) {
-  const date = parseTimestamp(timestampValue);
-  if (!date) return "No time";
-  return date.toLocaleTimeString(undefined, {
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-  });
-}
-
 function groupRecordsByDate(records) {
   const groups = new Map();
   records.forEach((record) => {
@@ -137,10 +127,6 @@ function renderResults(records) {
       trackingText.className = "tracking-number";
       trackingText.textContent = record.trackingNumber;
 
-      const timeText = document.createElement("div");
-      timeText.className = "tracking-time";
-      timeText.textContent = `Time: ${formatTimeLabel(record.timestamp)}`;
-
       const kexLink = document.createElement("a");
       kexLink.className = "track-btn";
       kexLink.href = `${KEX_TRACK_BASE_URL}${encodeURIComponent(record.trackingNumber)}`;
@@ -149,7 +135,6 @@ function renderResults(records) {
       kexLink.textContent = "Track on KEX";
 
       textWrap.appendChild(trackingText);
-      textWrap.appendChild(timeText);
       row.appendChild(textWrap);
       row.appendChild(kexLink);
       groupList.appendChild(row);
